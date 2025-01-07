@@ -15,6 +15,7 @@ class PlayStation:
         response = requests.get(self.url)
         soup = BeautifulSoup(response.text, "html.parser")
 
+        self.next_page(soup)
         for games in soup.find_all("li", class_="psw-l-w-1/2@mobile-s psw-l-w-1/2@mobile-l psw-l-w-1/6@tablet-l psw-l-w-1/4@tablet-s psw-l-w-1/6@laptop psw-l-w-1/8@desktop psw-l-w-1/8@max"):
             links = games.find("a").get("href")
             link = ("https://store.playstation.com" + links)
@@ -23,13 +24,12 @@ class PlayStation:
 
             path_json = soup.find("script", type="application/ld+json").text
             data_json = json.loads(path_json)
-            self.processing(data_json,soup, link)
-
+            #self.processing(data_json,soup, link)
     def processing(self, data_json, soup, link):
         dict_games = {}
         details = []
 
-        dict_games["Title"] = data_json["name"]
+        dict_games["Title"] = data_json["name"].replace("PS4 & PS5", "")
         dict_games["Game_Status"] = data_json["category"]
         dict_games["Price"] = data_json["offers"]["price"]
         dict_games["Link"] = link
@@ -44,6 +44,10 @@ class PlayStation:
         for key, value in dict_games.items():
             self.list_dict[key] = value 
 
-        print(self.list_dict)
-        print("*" * 120)
+
+    def next_page(self,soup):
+        page = soup.find("div", class_="psw-l-stack-center").find("button")
+        print(page)
+        #print(self.list_dict)
+        #print("*" * 120)
 PlayStation().response()
