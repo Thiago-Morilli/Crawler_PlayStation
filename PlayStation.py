@@ -14,8 +14,9 @@ class PlayStation:
     def response(self):
         response = requests.get(self.url)
         soup = BeautifulSoup(response.text, "html.parser")
+        
 
-        #self.next_page(soup)
+        self.next_page(soup)
         for games in soup.find_all("li", class_="psw-l-w-1/2@mobile-s psw-l-w-1/2@mobile-l psw-l-w-1/6@tablet-l psw-l-w-1/4@tablet-s psw-l-w-1/6@laptop psw-l-w-1/8@desktop psw-l-w-1/8@max"):
             links = games.find("a").get("href")
             link = ("https://store.playstation.com" + links)
@@ -24,7 +25,7 @@ class PlayStation:
 
             path_json = soup.find("script", type="application/ld+json").text
             data_json = json.loads(path_json)
-            self.processing(data_json,soup, link)
+            #self.processing(data_json,soup, link)
     def processing(self, data_json, soup, link):
         dict_games = {}
         details = []
@@ -43,11 +44,18 @@ class PlayStation:
         
         for key, value in dict_games.items():
             self.list_dict[key] = value 
-        print(self.list_dict)
+        #print(self.list_dict)
         print("*" * 120)
 
     def next_page(self,soup):
-        page = soup.find("div", class_="psw-l-stack-center").find("button")
-        print(page)
-       
+        
+        ultima_pagina = soup.find("ol", class_="psw-l-space-x-1 psw-l-line-center psw-list-style-none").find("span").text
+        num = int(ultima_pagina)
+        
+        while True:
+            num += 1
+            url_page = f"https://store.playstation.com/pt-pt/category/298b428c-0c39-4ec8-abd5-237484e5a2ea/{num}"
+            self.response(url_page)
+
+
 PlayStation().response()
