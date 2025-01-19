@@ -2,21 +2,20 @@ import requests
 from bs4 import BeautifulSoup
 import json
 
+url = "https://store.playstation.com/pt-pt/category/298b428c-0c39-4ec8-abd5-237484e5a2ea/1"
+
 
 class PlayStation:
 
     def __init__(self):
         
-        self.url = "https://store.playstation.com/pt-pt/category/298b428c-0c39-4ec8-abd5-237484e5a2ea/1"
-
         self.list_dict = {}
 
-    def response(self):
-        response = requests.get(self.url)
+    def response(self, url):
+        response = requests.get(url)
         soup = BeautifulSoup(response.text, "html.parser")
         
 
-        self.next_page(soup)
         for games in soup.find_all("li", class_="psw-l-w-1/2@mobile-s psw-l-w-1/2@mobile-l psw-l-w-1/6@tablet-l psw-l-w-1/4@tablet-s psw-l-w-1/6@laptop psw-l-w-1/8@desktop psw-l-w-1/8@max"):
             links = games.find("a").get("href")
             link = ("https://store.playstation.com" + links)
@@ -26,6 +25,7 @@ class PlayStation:
             path_json = soup.find("script", type="application/ld+json").text
             data_json = json.loads(path_json)
             #self.processing(data_json,soup, link)
+            self.next_page(soup)
     def processing(self, data_json, soup, link):
         dict_games = {}
         details = []
@@ -44,18 +44,17 @@ class PlayStation:
         
         for key, value in dict_games.items():
             self.list_dict[key] = value 
-        #print(self.list_dict)
+        print(self.list_dict)
         print("*" * 120)
 
     def next_page(self,soup):
         
-        ultima_pagina = soup.find("ol", class_="psw-l-space-x-1 psw-l-line-center psw-list-style-none").find("span").text
-        num = int(ultima_pagina)
-        
-        while True:
-            num += 1
-            url_page = f"https://store.playstation.com/pt-pt/category/298b428c-0c39-4ec8-abd5-237484e5a2ea/{num}"
-            self.response(url_page)
+        cont = 199
 
+        for page in range(0, cont + 1 ):
+            print(page)
+            """ url_page = f"https://store.playstation.com/pt-pt/category/298b428c-0c39-4ec8-abd5-237484e5a2ea/{page}"
+                self.response(url_page)
+"""
 
-PlayStation().response()
+PlayStation().response(url)
